@@ -39,6 +39,8 @@ class WelcomePage extends StatefulWidget {
 }
 
 class _WelcomePageState extends State<WelcomePage> {
+  var pipGlobalKey = GlobalKey();
+
   @override
   void initState() {
     _saveAssetSubtitleToFile();
@@ -78,6 +80,11 @@ class _WelcomePageState extends State<WelcomePage> {
 
   List<Widget> buildExampleElementWidgets() {
     return [
+      // TODO(mia): Bring back to where it was in the list
+      _buildExampleElementWidget("Picture in Picture", () {
+        pipGlobalKey = GlobalKey();
+        _navigateToPage(PictureInPicturePage(pipGlobalKey));
+      }),
       _buildExampleElementWidget("Basic player", () {
         _navigateToPage(BasicPlayerPage());
       }),
@@ -147,9 +154,6 @@ class _WelcomePageState extends State<WelcomePage> {
       _buildExampleElementWidget("Overridden duration", () {
         _navigateToPage(OverriddenDurationPage());
       }),
-      _buildExampleElementWidget("Picture in Picture", () {
-        _navigateToPage(PictureInPicturePage());
-      }),
       _buildExampleElementWidget("Controls always visible", () {
         _navigateToPage(ControlsAlwaysVisiblePage());
       }),
@@ -195,8 +199,7 @@ class _WelcomePageState extends State<WelcomePage> {
 
   ///Save subtitles to file, so we can use it later
   Future _saveAssetSubtitleToFile() async {
-    String content =
-        await rootBundle.loadString("assets/example_subtitles.srt");
+    String content = await rootBundle.loadString("assets/example_subtitles.srt");
     final directory = await getApplicationDocumentsDirectory();
     var file = File("${directory.path}/example_subtitles.srt");
     file.writeAsString(content);
@@ -211,8 +214,7 @@ class _WelcomePageState extends State<WelcomePage> {
   }
 
   Future _saveAssetEncryptVideoToFile() async {
-    var content =
-        await rootBundle.load("assets/${Constants.fileTestVideoEncryptUrl}");
+    var content = await rootBundle.load("assets/${Constants.fileTestVideoEncryptUrl}");
     final directory = await getApplicationDocumentsDirectory();
     var file = File("${directory.path}/${Constants.fileTestVideoEncryptUrl}");
     file.writeAsBytesSync(content.buffer.asUint8List());

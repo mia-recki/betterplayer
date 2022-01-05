@@ -37,3 +37,5 @@ export 'src/subtitles/better_player_subtitles_configuration.dart';
 export 'src/subtitles/better_player_subtitles_source.dart';
 export 'src/subtitles/better_player_subtitles_source_type.dart';
 export 'src/video_player/video_player.dart' show VideoPlayerValue;
+export 'src/picture_in_picture/in_app_overlay.dart';
+export 'src/picture_in_picture/pip_page_mixin.dart';

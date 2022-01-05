@@ -3,28 +3,45 @@ import 'package:better_player_example/constants.dart';
 import 'package:flutter/material.dart';
 
 class PictureInPicturePage extends StatefulWidget {
+  final GlobalKey globalKey;
+  final BetterPlayerController? pipPlayer;
+
+  const PictureInPicturePage(this.globalKey, {this.pipPlayer, Key? key}) : super(key: key);
   @override
   _PictureInPicturePageState createState() => _PictureInPicturePageState();
 }
 
-class _PictureInPicturePageState extends State<PictureInPicturePage> {
-  late BetterPlayerController _betterPlayerController;
-  GlobalKey _betterPlayerKey = GlobalKey();
+class _PictureInPicturePageState extends State<PictureInPicturePage> with PIPPage {
+  @override
+  late BetterPlayerController betterPlayerController;
+  @override
+  GlobalKey<State<StatefulWidget>> get playerKey => widget.globalKey;
+  @override
+  Function(BuildContext, BetterPlayerController) get rebuildPage => (context, controller) {
+     Navigator.of(context).push(
+        MaterialPageRoute<void>(
+          builder: (context) => PictureInPicturePage(playerKey, pipPlayer: controller,),
+        ),
+      );
+  };
 
   @override
   void initState() {
-    BetterPlayerConfiguration betterPlayerConfiguration =
-        BetterPlayerConfiguration(
-      aspectRatio: 16 / 9,
-      fit: BoxFit.contain,
-    );
-    BetterPlayerDataSource dataSource = BetterPlayerDataSource(
-      BetterPlayerDataSourceType.network,
-      Constants.elephantDreamVideoUrl,
-    );
-    _betterPlayerController = BetterPlayerController(betterPlayerConfiguration);
-    _betterPlayerController.setupDataSource(dataSource);
-    _betterPlayerController.setBetterPlayerGlobalKey(_betterPlayerKey);
+    if (widget.pipPlayer == null) {
+      BetterPlayerConfiguration betterPlayerConfiguration = BetterPlayerConfiguration(
+        aspectRatio: 16 / 9,
+        fit: BoxFit.contain,
+      );
+      BetterPlayerDataSource dataSource = BetterPlayerDataSource(
+        BetterPlayerDataSourceType.network,
+        Constants.elephantDreamVideoUrl,
+      );
+      betterPlayerController = BetterPlayerController(betterPlayerConfiguration);
+      betterPlayerController.setupDataSource(dataSource);
+      betterPlayerController.setBetterPlayerGlobalKey(playerKey);
+    } else {
+      betterPlayerController = widget.pipPlayer!;
+    }
     super.initState();
   }
 
@@ -44,23 +61,24 @@ class _PictureInPicturePageState extends State<PictureInPicturePage> {
               style: TextStyle(fontSize: 16),
             ),
           ),
-          AspectRatio(
-            aspectRatio: 16 / 9,
-            child: BetterPlayer(
-              controller: _betterPlayerController,
-              key: _betterPlayerKey,
+          if (!isInAppPIP)
+            AspectRatio(
+              aspectRatio: 16 / 9,
+              child: BetterPlayer(
+                controller: betterPlayerController,
+                key: widget.globalKey,
+              ),
             ),
-          ),
           ElevatedButton(
             child: Text("Show PiP"),
             onPressed: () {
-              _betterPlayerController.enablePictureInPicture(_betterPlayerKey);
+              enterPIP();
             },
           ),
           ElevatedButton(
             child: Text("Disable PiP"),
             onPressed: () async {
-              _betterPlayerController.disablePictureInPicture();
+              betterPlayerController.disablePictureInPicture();
             },
           ),
         ],
