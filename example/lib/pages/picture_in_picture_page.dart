@@ -14,16 +14,29 @@ class PictureInPicturePage extends StatefulWidget {
 class _PictureInPicturePageState extends State<PictureInPicturePage> with PIPPage {
   @override
   late BetterPlayerController betterPlayerController;
+
   @override
   GlobalKey<State<StatefulWidget>> get playerKey => widget.globalKey;
+
   @override
   Function(BuildContext, BetterPlayerController) get rebuildPage => (context, controller) {
-     Navigator.of(context).push(
-        MaterialPageRoute<void>(
-          builder: (context) => PictureInPicturePage(playerKey, pipPlayer: controller,),
-        ),
-      );
-  };
+        Navigator.of(context).push(
+          MaterialPageRoute<void>(
+            builder: (context) => PictureInPicturePage(
+              playerKey,
+              pipPlayer: controller,
+            ),
+          ),
+        );
+      };
+
+  final pipControlsConfiguration = BetterPlayerControlsConfiguration(
+    enablePlayPause: true,
+    enablePip: true,
+    enableSkips: true,
+    enableMute: false,
+    enableRetry: false,
+  );
 
   @override
   void initState() {
@@ -41,6 +54,7 @@ class _PictureInPicturePageState extends State<PictureInPicturePage> with PIPPag
       betterPlayerController.setBetterPlayerGlobalKey(playerKey);
     } else {
       betterPlayerController = widget.pipPlayer!;
+      betterPlayerController.setBetterPlayerControlsConfiguration(BetterPlayerControlsConfiguration());
     }
     super.initState();
   }
@@ -72,6 +86,7 @@ class _PictureInPicturePageState extends State<PictureInPicturePage> with PIPPag
           ElevatedButton(
             child: Text("Show PiP"),
             onPressed: () {
+              betterPlayerController.setBetterPlayerControlsConfiguration(pipControlsConfiguration);
               enterPIP();
             },
           ),

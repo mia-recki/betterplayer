@@ -409,6 +409,12 @@ class MethodChannelVideoPlayer extends VideoPlayerPlatform {
             key: key,
           );
 
+        case 'userLeaveHint':
+          return VideoEvent(
+            eventType: VideoEventType.userLeaveHint,
+            key: key,
+          );
+
         default:
           return VideoEvent(
             eventType: VideoEventType.unknown,

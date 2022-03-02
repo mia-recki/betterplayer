@@ -462,6 +462,9 @@ enum VideoEventType {
   /// Picture in picture mode has been dismissed
   pipStop,
 
+  /// Android only: The app is preparing to go to the background (e.g., user pressed the home button)
+  userLeaveHint,
+
   /// An unknown event has been received.
   unknown,
 }

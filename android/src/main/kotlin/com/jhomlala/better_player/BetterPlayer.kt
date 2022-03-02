@@ -699,6 +699,12 @@ internal class BetterPlayer(
         eventSink.success(event)
     }
 
+    fun onUserLeaveHint() {
+        val event: MutableMap<String, Any> = HashMap()
+        event["event"] = "userLeaveHint"
+        eventSink.success(event)
+    }
+
     fun disposeMediaSession() {
         if (mediaSession != null) {
             mediaSession!!.release()

@@ -2,12 +2,19 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-const _defaultPosition = PIPDimensions(200, 100, 140, 400);
+const _defaultPosition = PIPDimensions(width: 200, height: 100, x: 140, y: 400);
 
 class PIPOverlayController {
+  // keep track of current overlay widget
   static OverlayEntry? _overlay;
+
+  // position on the screen of in-app pip widget
   static PIPDimensions _position = _defaultPosition;
+
+  // takes updates from `GestureDetector` and adds them to the stream
   static final StreamController<PIPDimensions> _dimensionsController = StreamController.broadcast()..add(_position);
+
+  /// tracks the current position of pip video widget
   static Stream<PIPDimensions> get dimensions => _dimensionsController.stream.map((d) {
         _position += d;
         return _position;
@@ -17,12 +24,13 @@ class PIPOverlayController {
     BuildContext context,
     Widget videoView,
   ) {
+    removeOverlay();
     _overlay = OverlayEntry(builder: (context) => PIPOverlay(videoView: videoView));
     Overlay.of(context)?.insert(_overlay!);
   }
 
   static void dragView(double changeX, double changeY) {
-    _dimensionsController.add(PIPDimensions(0, 0, changeX, changeY));
+    _dimensionsController.add(PIPDimensions(width: 0, height: 0, x: changeX, y: changeY));
   }
 
   static void removeOverlay() {
@@ -44,7 +52,7 @@ class PIPOverlay extends StatelessWidget {
         PIPDimensions d = snapshot.data ?? _defaultPosition;
         if (d.fullscreen) {
           final size = MediaQuery.of(context).size;
-          d = d.copyWith(width: size.width, height: size.height, x: 0, y: 0);
+          d = PIPDimensions(width: size.width, height: size.height, x: 0, y: 0, fullscreen: d.fullscreen);
         }
         return Stack(
           fit: StackFit.expand,
@@ -75,24 +83,22 @@ class PIPDimensions {
   final double y;
   final bool fullscreen;
 
-  const PIPDimensions(this.width, this.height, this.x, this.y, {this.fullscreen = false});
+  const PIPDimensions({
+    required this.width,
+    required this.height,
+    required this.x,
+    required this.y,
+    this.fullscreen = false,
+  });
 
-  PIPDimensions enterFullscreen() => copyWith(width: 0, height: 0, x: 0, y: 0, fullscreen: true);
-  PIPDimensions exitFullscreen() => copyWith(width: 0, height: 0, x: 0, y: 0, fullscreen: false);
-
-  PIPDimensions copyWith({double? width, double? height, double? x, double? y, bool? fullscreen}) => PIPDimensions(
-        width ?? this.width,
-        height ?? this.height,
-        y ?? this.y,
-        x ?? this.x,
-        fullscreen: fullscreen ?? this.fullscreen,
-      );
+  PIPDimensions enterFullscreen() => PIPDimensions(width: 0, height: 0, x: 0, y: 0, fullscreen: true);
+  PIPDimensions exitFullscreen() => PIPDimensions(width: 0, height: 0, x: 0, y: 0, fullscreen: false);
 
   PIPDimensions operator +(PIPDimensions d) => PIPDimensions(
-        width + d.width,
-        height + d.height,
-        x + d.x,
-        y + d.y,
+        width: width + d.width,
+        height: height + d.height,
+        x: x + d.x,
+        y: y + d.y,
         fullscreen: d.fullscreen,
       );
 

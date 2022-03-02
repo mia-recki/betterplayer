@@ -33,6 +33,7 @@ class VideoPlayerValue {
     this.speed = 1.0,
     this.errorDescription,
     this.isPip = false,
+    this.onUserLeaveHint,
   });
 
   /// Returns an instance with a `null` [Duration].
@@ -87,6 +88,10 @@ class VideoPlayerValue {
   ///Is in Picture in Picture Mode
   final bool isPip;
 
+  /// Android only: optional callback to be executed before the app goes to background
+  /// (e.g., when a user presses the home button)
+  final VoidCallback? onUserLeaveHint;
+
   /// Indicates whether or not the video has been loaded and is ready to play.
   bool get initialized => duration != null;
 
@@ -122,6 +127,7 @@ class VideoPlayerValue {
     String? errorDescription,
     double? speed,
     bool? isPip,
+    VoidCallback? onUserLeaveHint,
   }) {
     return VideoPlayerValue(
       duration: duration ?? this.duration,
@@ -136,6 +142,7 @@ class VideoPlayerValue {
       speed: speed ?? this.speed,
       errorDescription: errorDescription ?? this.errorDescription,
       isPip: isPip ?? this.isPip,
+      onUserLeaveHint: onUserLeaveHint ?? this.onUserLeaveHint,
     );
   }
 
@@ -152,7 +159,9 @@ class VideoPlayerValue {
         'isLooping: $isLooping, '
         'isBuffering: $isBuffering, '
         'volume: $volume, '
-        'errorDescription: $errorDescription)';
+        'errorDescription: $errorDescription)'
+        'isPip: $isPip'
+        'onUserLeaveHint: $onUserLeaveHint';
   }
 }
 
@@ -251,6 +260,9 @@ class VideoPlayerController extends ValueNotifier<VideoPlayerValue> {
           break;
         case VideoEventType.pipStop:
           value = value.copyWith(isPip: false);
+          break;
+        case VideoEventType.userLeaveHint:
+          value.onUserLeaveHint?.call();
           break;
         case VideoEventType.unknown:
           break;
@@ -611,6 +623,14 @@ class VideoPlayerController extends ValueNotifier<VideoPlayerValue> {
       return false;
     }
     return _videoPlayerPlatform.isPictureInPictureEnabled(_textureId);
+  }
+
+  void registerUserLeaveHintCallback(VoidCallback callback) {
+    value = value.copyWith(onUserLeaveHint: callback);
+  }
+
+  void unregisterUserLeaveHintCallback() {
+    value = value.copyWith(onUserLeaveHint: () {});
   }
 
   void refresh() {

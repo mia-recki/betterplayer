@@ -75,6 +75,12 @@ class BetterPlayerPlugin : FlutterPlugin, ActivityAware, MethodCallHandler {
 
     override fun onAttachedToActivity(binding: ActivityPluginBinding) {
         activity = binding.activity
+        binding.addOnUserLeaveHintListener {
+            for (i in 0 until videoPlayers.size()) {
+                videoPlayers.valueAt(i).onUserLeaveHint()
+            }
+            Log.i("BETTERPLAYER", "user leaving")
+        }
     }
 
     override fun onDetachedFromActivityForConfigChanges() {}
